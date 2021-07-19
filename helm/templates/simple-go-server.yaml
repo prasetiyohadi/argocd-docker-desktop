@@ -1,0 +1,33 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-go-server
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    path: helm
+    repoURL: https://github.com/prasetiyohadi/simple-go-server.git
+    targetRevision: HEAD
+    helm:
+      values: |
+        image:
+          tag: latest
+        ingress:
+          enabled: true
+          hosts:
+            - host: simple-go-server.127.0.0.1.nip.io
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
+      version: v3
+  destination:
+    namespace: production
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
